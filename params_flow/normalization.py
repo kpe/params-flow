@@ -28,7 +28,7 @@ class LayerNormalization(Normalization):
     class Params(Normalization.Params):
         epsilon         = 1e-12
 
-    def _construct(self, params: Params):
+    def _construct(self, params):
         self.gamma = None
         self.beta  = None
         self.supports_masking = True

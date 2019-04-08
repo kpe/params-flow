@@ -27,7 +27,7 @@ class Layer(keras.layers.Layer):
     def params(self):
         return self._params
 
-    def _construct(self, params: Params):
+    def _construct(self, params):
         """ Override layer construction. """
         pass
 

@@ -22,7 +22,7 @@ class Model(keras.Model):
     def params(self):
         return self._params
 
-    def _construct(self, params: Params):
+    def _construct(self, params):
         """ Override model construction. """
         pass
 
