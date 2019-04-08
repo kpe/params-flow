@@ -20,7 +20,7 @@ env:
 
 # command to install dependencies
 install:
-  - pip intstall -r requirements.txt
+  - pip install -r requirements.txt
   - pip install coverage pep8 nose
 
 # command to run tests
