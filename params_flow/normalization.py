@@ -44,7 +44,7 @@ class LayerNormalization(Normalization):
 
     def call(self, inputs, **kwargs):
         x = inputs
-        mean, var = tf.nn.moments(x, axes=-1, keep_dims=True)
+        mean, var = tf.nn.moments(x, axes=-1, keepdims=True)
         # normed = (x - mean)/tf.sqrt(var + self.params.epsilon)
         # res    = self.gamma * normed + self.beta
         res = tf.nn.batch_normalization(x, mean=mean, variance=var,

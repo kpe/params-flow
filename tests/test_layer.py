@@ -12,15 +12,18 @@ from params_flow import Layer, Model
 
 from tensorflow.python import keras
 
+
 class SomeLayer(Layer):
     class Params(Layer.Params):
         center = True
         scale  = True
 
+
 class SomeModel(Model):
     class Params(Model.Params):
         center = True
         scale  = True
+
 
 class ParamsFlowTest(unittest.TestCase):
 
@@ -64,5 +67,5 @@ class ParamsFlowTest(unittest.TestCase):
         self.assertEqual(3, sh[2])
 
     def test_model(self):
-        smodel = SomeModel(**SomeLayer().params)
+        smodel = SomeModel(center=True, scale=True)
         self.assertEqual(smodel.params, SomeLayer().params)
