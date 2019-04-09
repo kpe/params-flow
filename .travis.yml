@@ -19,9 +19,8 @@ env:
 
 # command to install dependencies
 install:
-  - pip install -U pip
-  - pip install tensorflow
-  - pip install py-params
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
   - pip install coverage pep8 nose
 
 # command to run tests
@@ -54,5 +53,5 @@ deploy:
   on:
     tags: true
     branch: master
-    condition: $TRAVIS_PYTHON_VERSION = pypy
+    condition: $TRAVIS_PYTHON_VERSION = 3.7
   skip_existing: true
