@@ -31,6 +31,9 @@ class Layer(keras.layers.Layer):
         """ Override layer construction. """
         pass
 
+    def compute_output_shape(self, input_shape):
+        return input_shape  # pragma: no cover
+
     def get_config(self):
         base_config = super(Layer, self).get_config()
         return dict(list(base_config.items()) + list(self.params.items()))

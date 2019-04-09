@@ -22,7 +22,7 @@ class TestLayerNormalization(unittest.TestCase):
         model = keras.Sequential([keras.layers.InputLayer(input_shape=(2,3)),
                                   norm_layer])
 
-        #model.build(input_shape=(None, 2, 3))
+        model.build(input_shape=(None, 2, 3))
         model.compile(optimizer=keras.optimizers.Adam(), loss='mse')
         model.summary()
 
@@ -42,11 +42,14 @@ class TestLayerNormalization(unittest.TestCase):
 
     def test_equal(self):
         norm_layer = LayerNormalization()
-        model = keras.Sequential([keras.layers.InputLayer(input_shape=(16,256)),
+        model = keras.Sequential([keras.layers.InputLayer(input_shape=(16, 256)),
                                   norm_layer])
 
-        #model.build(input_shape=(3, 16, 256))
-        model.compile(optimizer='adam', loss='mse')
+        # model.build(input_shape=(3, 16, 256))
+        model.compile(optimizer=keras.optimizers.Adam(), loss='mse')
+        # model.summary()
+
+        model.fit(np.zeros((3,16,256)), np.ones((3,16,256)))
         model.summary()
 
         inputs = np.zeros((3, 16, 256))

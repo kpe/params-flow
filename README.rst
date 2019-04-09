@@ -1,7 +1,7 @@
 params-flow
 ===========
 
-|Build Status| |Coverage Status| |Version Status|
+|Build Status| |Coverage Status| |Version Status| |Python Versions|
 
 TensorFlow Keras utilities and helpers for building custom layers by reducing boilerplate code.
 
@@ -62,4 +62,4 @@ will spare you from coding comon keras boilerplate code like:
    :target: https://coveralls.io/r/kpe/params-flow
 .. |Version Status| image:: https://badge.fury.io/py/params-flow.svg
    :target: https://badge.fury.io/py/params-flow
-
+.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/setuptools.svg

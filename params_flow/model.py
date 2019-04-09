@@ -14,13 +14,17 @@ class Model(keras.Model):
         pass
 
     def __init__(self, **kwargs):
-        self._params, other_args = self.__class__.Params.from_dict(kwargs)
+        _params, other_args = self.__class__.Params.from_dict(kwargs)
         super(Model, self).__init__(**other_args)
+        self._params = _params
         self._construct(self.params)
 
     @property
     def params(self):
         return self._params
+
+    def compute_mask(self, inputs, mask):
+        return mask  # pragma: no cover
 
     def _construct(self, params):
         """ Override model construction. """

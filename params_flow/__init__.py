@@ -5,7 +5,7 @@
 
 from __future__ import division, absolute_import, print_function
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 
 from .layer import Layer
