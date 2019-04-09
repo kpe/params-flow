@@ -4,7 +4,6 @@ python:
     - "3.4"
     - "3.5"
     - "3.6"
-    - "pypy3.5"
 dist: trusty
 
 # Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
