@@ -29,4 +29,3 @@ class Model(keras.Model):
     def _construct(self, params):
         """ Override model construction. """
         pass
-

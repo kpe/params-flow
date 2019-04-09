@@ -71,5 +71,3 @@ class Layer(keras.layers.Layer):
             )
         )
         return layer_instance
-
-
