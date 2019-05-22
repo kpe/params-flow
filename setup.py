@@ -7,7 +7,7 @@
 
 from setuptools import setup
 
-# import params_flow
+import params_flow
 
 
 with open("README.rst", "r") as fh:
@@ -18,7 +18,7 @@ with open("requirements.txt", "r") as reader:
 
 
 setup(name='params-flow',
-      version='0.1.3',
+      version=params_flow.__version__,
       description='Tensorflow Keras utilities for reducing boilerplate code.',
       url='https://github.com/kpe/params-flow/',
       author='kpe',
@@ -30,6 +30,7 @@ setup(name='params-flow',
       long_description=long_description,
       long_description_content_type="text/x-rst",
       zip_safe=False,
+      include_package_data=True,
       install_requires=install_requires,
       python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
       classifiers=[
