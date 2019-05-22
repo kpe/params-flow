@@ -7,15 +7,18 @@
 
 from setuptools import setup
 
-import params_flow
+# import params_flow
 
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
+with open("requirements.txt", "r") as reader:
+    install_requires = list(map(lambda x: x.strip(), reader.readlines()))
+
 
 setup(name='params-flow',
-      version=params_flow.__version__,
+      version='0.1.3',
       description='Tensorflow Keras utilities for reducing boilerplate code.',
       url='https://github.com/kpe/params-flow/',
       author='kpe',
@@ -23,10 +26,11 @@ setup(name='params-flow',
       license='MIT',
       keywords='tensorflow keras',
       packages=['params_flow'],
-      package_data={'params_flow': ['tests/*.py']},
+      package_data={'params_flow': ['tests/*.py', 'requirements.txt']},
       long_description=long_description,
       long_description_content_type="text/x-rst",
       zip_safe=False,
+      install_requires=install_requires,
       python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
       classifiers=[
           "Development Status :: 5 - Production/Stable",
