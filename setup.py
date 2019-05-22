@@ -27,6 +27,9 @@ setup(name='params-flow',
       long_description=long_description,
       long_description_content_type="text/x-rst",
       zip_safe=False,
+      install_requires=[
+          "py-params >= 0.5.2"
+      ],
       python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
       classifiers=[
           "Development Status :: 5 - Production/Stable",

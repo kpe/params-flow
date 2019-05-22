@@ -9,4 +9,4 @@ from .model import Model
 from .normalization import LayerNormalization
 
 
-__version__ = '0.0.10'
+__version__ = '0.1.0'
