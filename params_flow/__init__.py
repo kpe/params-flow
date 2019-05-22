@@ -10,5 +10,4 @@ from .normalization import LayerNormalization
 from .activations import gelu, gelu_exact
 
 
-__version__ = '0.1.4'
-
+__version__ = '0.1.5'
