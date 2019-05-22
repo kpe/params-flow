@@ -1,12 +1,14 @@
 # coding=utf-8
 #
-# created by kpe on 08.04.2019 at 8:57 PM
+# created by kpe on 20.Mar.2019 at 16:41
 #
 
-from __future__ import division, absolute_import, print_function
+from __future__ import absolute_import, division, print_function
+
+import tensorflow as tf
+from tensorflow.python import keras
 
 from params import Params
-from tensorflow.python import keras
 
 
 class Model(keras.Model):
