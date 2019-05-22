@@ -18,7 +18,7 @@ with open("requirements.txt", "r") as reader:
 
 
 setup(name='params-flow',
-      version=params_flow.__version__,
+      version='0.1.7',
       description='Tensorflow Keras utilities for reducing boilerplate code.',
       url='https://github.com/kpe/params-flow/',
       author='kpe',
