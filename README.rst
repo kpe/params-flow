@@ -62,4 +62,16 @@ will spare you from coding comon keras boilerplate code like:
    :target: https://coveralls.io/r/kpe/params-flow
 .. |Version Status| image:: https://badge.fury.io/py/params-flow.svg
    :target: https://badge.fury.io/py/params-flow
-.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/setuptools.svg
+.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/params-flow.svg
+
+Resources
+---------
+
+- `kpe/py-params`_  - utilities for reducing keras boilerplate code in custom layers by passing parameters in `kpe/py-params`_ `Params` instances.
+- `kpe/bert-for-tf2`_ - BERT implementation using the TensorFlow 2 Keras API with the help of `params-flow`_ for reducing some of the common Keras boilerplate code needed when passing parameters to custom layers.
+
+.. _`kpe/py-params`: https://github.com/kpe/py-params
+.. _`kpe/params-flow`: https://github.com/kpe/params-flow
+.. _`kpe/bert-for-tf2`: https://github.com/kpe/bert-for-tf2
+
+

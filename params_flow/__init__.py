@@ -4,10 +4,10 @@
 #
 from __future__ import division, absolute_import, print_function
 
-from .layer import Layer
-from .model import Model
-from .normalization import LayerNormalization
-from .activations import gelu, gelu_exact
+from params_flow.layer import Layer
+from params_flow.model import Model
+from params_flow.normalization import LayerNormalization
+from params_flow.activations import gelu, gelu_exact
 
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
