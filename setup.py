@@ -5,7 +5,9 @@
 #
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
+
+import params_flow
 
 
 with open("README.rst", "r") as fh:
@@ -15,28 +17,28 @@ with open("requirements.txt", "r") as reader:
     install_requires = list(map(lambda x: x.strip(), reader.readlines()))
 
 
-setup(name='params-flow',
-      version='0.1.9',
-      description='Tensorflow Keras utilities for reducing boilerplate code.',
-      url='https://github.com/kpe/params-flow/',
-      author='kpe',
-      author_email='kpe.git@gmailbox.org',
-      license='MIT',
-      keywords='tensorflow keras',
-      packages=['params_flow'],
-      package_data={'params_flow': ['tests/*.py', 'requirements.txt']},
+setup(name="params-flow",
+      version=params_flow.__version__,
+      url="https://github.com/kpe/params-flow/",
+      description="Tensorflow Keras utilities for reducing boilerplate code.",
       long_description=long_description,
       long_description_content_type="text/x-rst",
-      zip_safe=False,
-      include_package_data=True,
+      keywords="tensorflow keras",
+      license="MIT",
+      author="kpe",
+      author_email="kpe.git@gmailbox.org",
+
+      packages=find_packages(exclude=["tests"]),
+
+      package_data={"": ["*.txt", "*.rst"]},
+      zip_safe=True,
+
       install_requires=install_requires,
-      python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+      python_requires=">=3.4",
       classifiers=[
           "Development Status :: 5 - Production/Stable",
           "License :: OSI Approved :: MIT License",
           "Programming Language :: Python",
-          "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
