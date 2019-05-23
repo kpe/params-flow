@@ -8,6 +8,3 @@ from params_flow.layer import Layer
 from params_flow.model import Model
 from params_flow.normalization import LayerNormalization
 from params_flow.activations import gelu, gelu_exact
-
-
-__version__ = "0.2.1"
