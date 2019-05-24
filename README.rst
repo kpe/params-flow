@@ -3,7 +3,59 @@ params-flow
 
 |Build Status| |Coverage Status| |Version Status| |Python Versions|
 
-TensorFlow Keras utilities and helpers for building custom layers by reducing boilerplate code.
+`params-flow`_ provides an alternative style for defining your `Keras`_ model
+or layer configuration in order to reduce the boilerplate code related to
+passing and (de)serializing your model/layer configuration arguments.
+
+`params-flow`_ encourages this:
+
+.. code:: python
+
+   import params_flow
+
+   class MyDenseLayer(params_flow.Layer):      # using params_flow Layer/Model instead of Keras ones
+     class Params(params_flow.Layer.Params):   # extend one or more base Params configurations
+       num_outputs = None                      # declare all configuration arguments
+       activation = "gelu"                     #   provide or override super() defaults
+                                               # do not define an __init__()
+
+     def build(self, in_shape):
+       self.kernel = self.add_variable("kernel",
+                                       [int(in_shape[-1]),
+                                        self.params.num_outputs])     # access config arguments
+
+
+which would be sufficient to pass the right configuration arguments to the base layer/model,
+as well as take care of (de)serialization, so you can concentrate
+on the ``build()`` or ``call()`` implementations,
+instead of writing boilerplate code like this:
+
+.. code:: python
+
+    from tf.keras.layers import Layer
+
+    class MyDenseLayer(Layer):
+      def __init__(self,
+                   num_outputs,            # put all of the layer configuration in the constructor
+                   activation = "gelu",    #     provide defaults
+                   **kwargs):              # allow base layer configuration to be passed to super
+        self.num_outputs = num_outputs
+        self.activation = activation
+        super().__init__(**kwargs)
+
+      def build(self, in_shape):
+        self.kernel = self.add_variable("kernel",
+                                        [int(in_shape[-1]),
+                                         self.num_outputs])      # access config arguments
+
+      def get_config(self):                # serialize layer configuration, __init__() is the deserializer
+        config = {
+          'num_outputs': self.num_outputs,
+          'activation': self.activation
+        }
+        base_config = super().get_config()
+        return dict(list(base_config.items())) + list(config.items())
+
 
 LICENSE
 -------
@@ -23,37 +75,59 @@ Install
 Usage
 -----
 
-``params-flow`` provides a ``Layer`` class that helps reducing common boilerplate
-code when writing custom Keras layers.
+``params-flow`` provides a ``Layer`` and ``Model`` base classes that help
+reducing common boilerplate code in your custom Keras layers and models.
 
-Instead of defining your layer parameters in ``__init()``, define them in
-a ``Params`` class like this:
+When subclassing a Keras ``Model`` or ``Layer``, each configuration parameter
+has to be provided as an argument in ``__init__()``. Keras relies on both ``__init__()``
+and ``get_config()`` to make a model/layer serializable.
+
+While python idiomatic this style of defining your Keras models/layers results
+in a lot of boilerplate code. `params-flow`_ provides an alternative by
+encapsulating all those ``__init__()`` configuration arguments in a dedicated
+``Params`` instance (``Params`` is kind of a "type-safe" python dict -
+see `kpe/py-params`_).
+The model/layer specific configuration needs to be declared as
+a nested ``Model.Params``/``Layer.Params`` subclass, and your model/layer have to
+subclass ``params_flow.Model``/``params_flow.Layer`` instead of the Keras ones:
 
 .. code:: python
 
-    class MyLayer(params_flow.Layer):
-        Params(params_flow.Layer.Params):
-           hidden_size = 128
-           activation  = "gelu"
+   class BertEmbeddingsLayer(Layer):
+     class Params(PositionEmbeddingLayer.Params):
+       vocab_size              = None
+       token_type_vocab_size   = 2
+       hidden_size             = 768
+       use_position_embeddings = True
 
-After extending the ``params.flow.Layer`` like above,
-the base class will take care for serializing your layer configuration, and
-will spare you from coding comon keras boilerplate code like:
+   class TransformerEncoderLayer(Layer):
+     class Params(TransformerSelfAttentionLayer.Params,
+                  ProjectionLayer.Params):
+       intermediate_size       = 3072
+       intermediate_activation = "gelu"
+
+
+
+this allows you to declare the model's configuration by simply extending
+the ``Params`` of the underlying layers:
 
 .. code:: python
 
-    class MyLayer(keras.Layer):
-        def __init__(self, hidden_size=128, activation="gelu"):
-            super(MyLayer, self).__init__()
-            self.hidden_size = hidden_size
-            self.activation  = activation
-        def get_config(self):
-            config = {
-            "hidden_size": self.hidden_size,
-            "activation":  self.activation,
-        }
-        base_config = super(MyLayer, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+  class BertModel(Model):
+    class Params(BertEmbeddingsLayer.Params,
+                 TransformerEncoderLayer.Params):
+      pass
+
+**N.B.** The two code excerpts are taken from `kpe/bert-for-tf2`_, so check there
+for the details of a non-trivial `params-flow`_ based implementation (of `BERT`_).
+
+Resources
+---------
+
+- `kpe/py-params`_  - utilities for reducing keras boilerplate code in custom layers by passing parameters in `kpe/py-params`_ `Params` instances.
+- `kpe/bert-for-tf2`_ - BERT implementation using the TensorFlow 2 Keras API with the help of `params-flow`_ for reducing some of the common Keras boilerplate code needed when passing parameters to custom layers.
+
+
 
 
 .. |Build Status| image:: https://travis-ci.org/kpe/params-flow.svg?branch=master
@@ -64,14 +138,11 @@ will spare you from coding comon keras boilerplate code like:
    :target: https://badge.fury.io/py/params-flow
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/params-flow.svg
 
-Resources
----------
-
-- `kpe/py-params`_  - utilities for reducing keras boilerplate code in custom layers by passing parameters in `kpe/py-params`_ `Params` instances.
-- `kpe/bert-for-tf2`_ - BERT implementation using the TensorFlow 2 Keras API with the help of `params-flow`_ for reducing some of the common Keras boilerplate code needed when passing parameters to custom layers.
 
 .. _`kpe/py-params`: https://github.com/kpe/py-params
 .. _`kpe/params-flow`: https://github.com/kpe/params-flow
 .. _`kpe/bert-for-tf2`: https://github.com/kpe/bert-for-tf2
+.. _`params-flow`: https://github.com/kpe/prams-flow
 
-
+.. _`Keras`: https://keras.io
+.. _`BERT`: https://github.com/google-research/bert
