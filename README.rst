@@ -25,10 +25,10 @@ passing and (de)serializing your model/layer configuration arguments.
                                         self.params.num_outputs])     # access config arguments
 
 
-which would be sufficient to pass the right configuration arguments to the base layer/model,
-as well as take care of (de)serialization, so you can concentrate
-on the ``build()`` or ``call()`` implementations,
-instead of writing boilerplate code like this:
+which would be sufficient to pass the right configuration arguments to the
+super layer/model, as well as take care of (de)serialization, so you can concentrate
+on the ``build()`` or ``call()`` implementations, instead of writing boilerplate
+code like this:
 
 .. code:: python
 
@@ -118,7 +118,7 @@ the ``Params`` of the underlying layers:
                  TransformerEncoderLayer.Params):
       pass
 
-**N.B.** The two code excerpts are taken from `kpe/bert-for-tf2`_, so check there
+**N.B.** The two code excerpts above are taken from `kpe/bert-for-tf2`_, so check there
 for the details of a non-trivial `params-flow`_ based implementation (of `BERT`_).
 
 Resources
