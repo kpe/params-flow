@@ -124,7 +124,7 @@ for the details of a non-trivial `params-flow`_ based implementation (of `BERT`_
 Resources
 ---------
 
-- `kpe/py-params`_  - utilities for reducing keras boilerplate code in custom layers by passing parameters in `kpe/py-params`_ `Params` instances.
+- `kpe/py-params`_  - A "type-safe" dict class for python.
 - `kpe/bert-for-tf2`_ - BERT implementation using the TensorFlow 2 Keras API with the help of `params-flow`_ for reducing some of the common Keras boilerplate code needed when passing parameters to custom layers.
 
 
