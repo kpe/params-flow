@@ -142,7 +142,7 @@ Resources
 .. _`kpe/py-params`: https://github.com/kpe/py-params
 .. _`kpe/params-flow`: https://github.com/kpe/params-flow
 .. _`kpe/bert-for-tf2`: https://github.com/kpe/bert-for-tf2
-.. _`params-flow`: https://github.com/kpe/prams-flow
+.. _`params-flow`: https://github.com/kpe/params-flow
 
 .. _`Keras`: https://keras.io
 .. _`BERT`: https://github.com/google-research/bert
