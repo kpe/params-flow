@@ -4,7 +4,9 @@
 #
 from __future__ import division, absolute_import, print_function
 
-from params_flow.layer import Layer
-from params_flow.model import Model
-from params_flow.normalization import LayerNormalization
-from params_flow.activations import gelu, gelu_exact
+from .version import __version__
+
+from .layer import Layer, get_initializer
+from .model import Model
+from .normalization import LayerNormalization
+from .activations import gelu, gelu_exact, get_activation

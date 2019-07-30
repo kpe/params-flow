@@ -20,5 +20,23 @@ def gelu(x):
 
 
 def gelu_exact(x):
-    return x * tf.erfc(-x / tf.sqrt(2.)) / 2.
+    return x * tf.math.erfc(-x / tf.sqrt(2.)) / 2.
 
+
+def get_activation(activation_string):
+    if not isinstance(activation_string, str):
+        return activation_string
+
+    act = activation_string.lower()
+    if act == "linear":
+        return None
+    elif act == "relu":
+        return tf.nn.relu
+    elif act == "gelu":
+        return gelu
+    elif act == "gelu_exact":
+        return gelu_exact
+    elif act == "tanh":
+        return tf.tanh
+    else:
+        raise ValueError("Unsupported activation: %s" % act)

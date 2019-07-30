@@ -5,26 +5,49 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 import json
 
 import tensorflow as tf
-from tensorflow.python import keras
 
 from params import Params
+from tensorflow.python import keras
+
+
+def get_initializer(params: Params):
+    if params.initializer == "uniform":
+        initializer = tf.compat.v2.initializers.RandomUniform(minval=-params.initializer_range,
+                                                              maxval=params.initializer_range,
+                                                              seed=params.random_seed)
+    elif params.initializer == "normal":
+        initializer = tf.compat.v2.initializers.RandomNormal(stddev=params.initializer_range,
+                                                             seed=params.random_seed)
+    elif params.initializer == "truncated_normal":
+        initializer = tf.compat.v2.initializers.TruncatedNormal(stddev=params.initializer_range,
+                                                                seed=params.random_seed)
+    else:
+        raise ValueError("Initializer {} not supported".format(params.initializer))
+
+    return initializer
 
 
 class Layer(keras.layers.Layer):
     class Params(Params):
-        pass
+        trainable   = True
+        name        = None
+        dtype       = tf.float32.name
+        dynamic     = False
 
     def __init__(self, **kwargs):
         self._params, other_args = self.__class__.Params.from_dict(kwargs)
-        super(Layer, self).__init__(**other_args)
+        super(Layer, self).__init__(trainable=self._params.trainable,
+                                    name=self._params.name,
+                                    dtype=tf.dtypes.as_dtype(self._params.dtype),
+                                    dynamic=self._params.dynamic,
+                                    **other_args)
         self._construct(self.params)
 
     @property
-    def params(self):
+    def params(self) -> Params:
         return self._params
 
     def _construct(self, params):

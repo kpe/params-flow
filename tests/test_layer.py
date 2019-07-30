@@ -8,6 +8,8 @@ from __future__ import division, absolute_import, print_function
 import unittest
 import tempfile
 
+import params
+import params_flow as pf
 from params_flow import Layer, Model
 
 from tensorflow.python import keras
@@ -68,4 +70,24 @@ class ParamsFlowTest(unittest.TestCase):
 
     def test_model(self):
         smodel = SomeModel(center=True, scale=True)
-        self.assertEqual(smodel.params, SomeLayer().params)
+        self.assertEqual(smodel.params, SomeModel().params)
+
+    def test_layer(self):
+        slayer = SomeLayer(center=True, scale=True)
+        self.assertEqual(slayer.params, SomeLayer().params)
+
+    def test_initializers(self):
+        class IParams(params.Params):
+            initializer_range = 0.01
+            random_seed       = None
+            initializer       = "normal"
+
+        self.assertIsNotNone(pf.layer.get_initializer(IParams(initializer="normal")))
+        self.assertIsNotNone(pf.layer.get_initializer(IParams(initializer="truncated_normal")))
+        self.assertIsNotNone(pf.layer.get_initializer(IParams(initializer="uniform")))
+        try:
+            pf.layer.get_initializer(IParams(initializer="non-existing"))
+            self.fail()
+        except ValueError:
+            pass
+
