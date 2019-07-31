@@ -1,7 +1,7 @@
 params-flow
 ===========
 
-|Build Status| |Coverage Status| |Version Status| |Python Versions|
+|Build Status| |Coverage Status| |Version Status| |Python Versions| |Downloads|
 
 `params-flow`_ provides an alternative style for defining your `Keras`_ model
 or layer configuration in order to reduce the boilerplate code related to
@@ -137,7 +137,7 @@ Resources
 .. |Version Status| image:: https://badge.fury.io/py/params-flow.svg
    :target: https://badge.fury.io/py/params-flow
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/params-flow.svg
-
+.. |Downloads| image:: https://img.shields.io/pypi/dm/params-flow.svg
 
 .. _`kpe/py-params`: https://github.com/kpe/py-params
 .. _`kpe/params-flow`: https://github.com/kpe/params-flow
