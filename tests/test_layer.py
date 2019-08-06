@@ -76,18 +76,3 @@ class ParamsFlowTest(unittest.TestCase):
         slayer = SomeLayer(center=True, scale=True)
         self.assertEqual(slayer.params, SomeLayer().params)
 
-    def test_initializers(self):
-        class IParams(params.Params):
-            initializer_range = 0.01
-            random_seed       = None
-            initializer       = "normal"
-
-        self.assertIsNotNone(pf.layer.get_initializer(IParams(initializer="normal")))
-        self.assertIsNotNone(pf.layer.get_initializer(IParams(initializer="truncated_normal")))
-        self.assertIsNotNone(pf.layer.get_initializer(IParams(initializer="uniform")))
-        try:
-            pf.layer.get_initializer(IParams(initializer="non-existing"))
-            self.fail()
-        except ValueError:
-            pass
-

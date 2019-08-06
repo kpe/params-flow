@@ -8,11 +8,11 @@ from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 from tensorflow.python import keras
 
-from params_flow.layer import Layer
+import params_flow as pf
 
 
-class Normalization(Layer):
-    class Params(Layer.Params):
+class Normalization(pf.Layer):
+    class Params(pf.Layer.Params):
         pass
 
     def compute_output_shape(self, input_shape):

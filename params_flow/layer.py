@@ -8,26 +8,9 @@ from __future__ import absolute_import, division, print_function
 import json
 
 import tensorflow as tf
-
-from params import Params
 from tensorflow.python import keras
 
-
-def get_initializer(params: Params):
-    if params.initializer == "uniform":
-        initializer = tf.compat.v2.initializers.RandomUniform(minval=-params.initializer_range,
-                                                              maxval=params.initializer_range,
-                                                              seed=params.random_seed)
-    elif params.initializer == "normal":
-        initializer = tf.compat.v2.initializers.RandomNormal(stddev=params.initializer_range,
-                                                             seed=params.random_seed)
-    elif params.initializer == "truncated_normal":
-        initializer = tf.compat.v2.initializers.TruncatedNormal(stddev=params.initializer_range,
-                                                                seed=params.random_seed)
-    else:
-        raise ValueError("Initializer {} not supported".format(params.initializer))
-
-    return initializer
+from params import Params
 
 
 class Layer(keras.layers.Layer):
