@@ -8,14 +8,13 @@ from __future__ import absolute_import, division, print_function
 import unittest
 
 import tempfile
-from distutils.command.check import check
 
 import params_flow as pf
 
 
 FETCH_URL = "https://files.pythonhosted.org/packages/06/60/6c28bf004c8b6706d3434d253d7e455ba63a63d0307ab0abe500f23af934/bert-for-tf2-0.3.7.tar.gz"
-
 FETCH_ZIP_URL = "https://github.com/kpe/bert-for-tf2/archive/v0.3.7.zip"
+
 
 class UtilsTest(unittest.TestCase):
     def test_fetch_and_unpack_targz(self):
