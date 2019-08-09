@@ -6,10 +6,11 @@ from __future__ import division, absolute_import, print_function
 
 from .version import __version__
 
-from .layer import Layer, get_initializer
+from .layer import Layer
 from .model import Model
 from .normalization import LayerNormalization
 from .activations import gelu, gelu_exact, get_activation
+from .initializers import get_initializer
 
 
 import params_flow.utils as utils
