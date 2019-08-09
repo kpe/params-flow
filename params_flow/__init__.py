@@ -10,3 +10,6 @@ from .layer import Layer, get_initializer
 from .model import Model
 from .normalization import LayerNormalization
 from .activations import gelu, gelu_exact, get_activation
+
+
+import params_flow.utils as utils

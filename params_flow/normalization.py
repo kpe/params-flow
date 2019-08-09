@@ -13,7 +13,7 @@ from params_flow.layer import Layer
 
 class Normalization(Layer):
     class Params(Layer.Params):
-        pass
+        name   = "LayerNorm"
 
     def compute_output_shape(self, input_shape):
         return input_shape
