@@ -96,7 +96,6 @@ class Concat(Wrapper):
                         assert dim_shape == sh  # pragma: no cover
                 out_shape.append(dim_shape)
 
-        print("out_shape", out_shape)
         return out_shape
 
     def call(self, inputs, **kwargs):
@@ -105,5 +104,4 @@ class Concat(Wrapper):
         return output
 
     def compute_mask(self, inputs, mask=None):
-        print("comp mask", inputs)
         return None
