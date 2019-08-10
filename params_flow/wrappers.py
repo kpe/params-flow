@@ -22,6 +22,10 @@ class Wrapper(Layer):
         super(Wrapper, self).__init__(**kwargs)
         self.layers = [layer for layer in layers]
 
+    def _construct(self, params):
+        self.supports_masking = True
+        super(Wrapper, self)._construct(params)
+
     def get_config(self):
         base_config = super(Wrapper, self).get_config()
         layer_configs = []
