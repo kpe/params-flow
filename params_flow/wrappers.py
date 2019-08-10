@@ -51,6 +51,12 @@ class Wrapper(Layer):
         wrapper = cls(wrapped_layers, **config['config'])
         return wrapper
 
+    def build(self, input_shape):
+        self.input_spec = keras.layers.InputSpec(shape=input_shape)
+        for layer in self.layers:
+            layer.build(input_shape)
+        super(Wrapper, self).build(input_shape)
+
 
 class Concat(Wrapper):
     """
@@ -71,8 +77,33 @@ class Concat(Wrapper):
     class Params(Wrapper.Params):
         axis = -1
 
+    def compute_output_shape(self, input_shape):
+        output_shapes = [layer.compute_output_shape(input_shape).as_list()
+                         for layer in self.layers]
+        assert min([len(sh) for sh in output_shapes]) == max([len(sh) for sh in output_shapes])
+        ndims = max([len(sh) for sh in output_shapes])
+
+        out_shape = []
+        for ndx, dim_shapes in enumerate(zip(*output_shapes)):
+            if ndx == (self.params.axis + ndims) % ndims:
+                out_shape.append(sum(dim_shapes))
+            else:
+                dim_shape = None
+                for sh in dim_shapes:
+                    if dim_shape is None:
+                        dim_shape = sh
+                    else:
+                        assert dim_shape == sh  # pragma: no cover
+                out_shape.append(dim_shape)
+
+        print("out_shape", out_shape)
+        return out_shape
+
     def call(self, inputs, **kwargs):
         outputs = [layer(inputs, **kwargs) for layer in self.layers]
         output = tf.concat(outputs, axis=self.params.axis)
         return output
 
+    def compute_mask(self, inputs, mask=None):
+        print("comp mask", inputs)
+        return None

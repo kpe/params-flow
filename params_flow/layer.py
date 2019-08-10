@@ -37,6 +37,9 @@ class Layer(keras.layers.Layer):
         """ Override layer construction. """
         pass
 
+    def compute_mask(self, inputs, mask=None):
+        return mask
+
     def compute_output_shape(self, input_shape):
         return input_shape  # pragma: no cover
 

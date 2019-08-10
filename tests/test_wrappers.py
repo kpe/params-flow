@@ -26,7 +26,7 @@ class TestWrapper(unittest.TestCase):
             ])
         ])
 
-        model.build(input_shape=(None, 3, 2))
+        model.build(input_shape=(None, 4, 2))
 
         x = np.array([
                 [[1, -2], [2, -10], [3, 10], [4, 2]]
@@ -48,4 +48,27 @@ class TestWrapper(unittest.TestCase):
 
         # coverage
         res = model.layers[0].call(x)
+        print(res)
+
+    def test_compile(self):
+        model = keras.models.Sequential([
+            keras.layers.InputLayer(input_shape=(11, 4)),
+            keras.layers.TimeDistributed(keras.layers.Dense(10)),
+            pf.wrappers.Concat([
+                keras.layers.GlobalAveragePooling1D(),
+                keras.layers.GlobalMaxPool1D(),
+            ]),
+            keras.layers.Dense(2)
+        ])
+        model.build(input_shape=(None, 11, 4))
+        model.summary()
+        model.compile(optimizer=keras.optimizers.Adam(),
+                      loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                      metrics=[keras.metrics.SparseCategoricalAccuracy()])
+
+        # coverage
+        res = pf.wrappers.Concat([
+                keras.layers.GlobalAveragePooling1D(),
+                keras.layers.GlobalMaxPool1D(),
+            ]).compute_output_shape((None, 11, 4, None))
         print(res)
