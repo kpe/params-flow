@@ -12,5 +12,6 @@ from .normalization import LayerNormalization
 from .activations import gelu, gelu_exact, get_activation
 from .initializers import get_initializer
 
+from .wrappers import Concat
 
 import params_flow.utils as utils
