@@ -19,8 +19,8 @@ def create_one_cycle_lr_scheduler(max_learn_rate=5e-5,
         if epoch < warmup_epoch_count:
             res = (max_learn_rate / warmup_epoch_count) * (epoch + 1)
         else:
-            k = math.log(end_learn_rate / max_learn_rate) / (total_epoch_count - warmup_epoch_count + 1)
-            res = max_learn_rate * math.exp(k * (epoch - warmup_epoch_count + 1))
+            k = math.log(end_learn_rate / max_learn_rate) / (total_epoch_count - warmup_epoch_count)
+            res = max_learn_rate * math.exp(k * (epoch - warmup_epoch_count))
         return float(res)
 
     learning_rate_scheduler = keras.callbacks.LearningRateScheduler(lr_scheduler, verbose=1)
