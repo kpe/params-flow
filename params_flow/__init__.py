@@ -15,3 +15,4 @@ from .initializers import get_initializer
 from .wrappers import Concat
 
 import params_flow.utils as utils
+import params_flow.optimizers as optimizers
