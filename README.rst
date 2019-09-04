@@ -56,6 +56,10 @@ code like this:
         base_config = super().get_config()
         return dict(list(base_config.items())) + list(config.items())
 
+NEWS
+----
+
+ - **04.Sep.2019** - `RAdam`_ optimizer implementation added.
 
 LICENSE
 -------
@@ -146,3 +150,4 @@ Resources
 
 .. _`Keras`: https://keras.io
 .. _`BERT`: https://github.com/google-research/bert
+.. _`RAdam`: https://arxiv.org/abs/1908.03265
