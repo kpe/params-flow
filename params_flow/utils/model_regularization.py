@@ -30,4 +30,5 @@ def add_model_loss(model_or_layer: Union[keras.layers.Layer, keras.models.Model]
         for layer in layers:
             weight = weight_accessor_fn(layer)
             if weight is not None:
-                layer.add_loss(lambda: regularizer(weight))
+                if weight.trainable:
+                    layer.add_loss(lambda: regularizer(weight))
