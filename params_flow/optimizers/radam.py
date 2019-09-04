@@ -40,8 +40,6 @@ class RAdam(keras.optimizers.Adam):
 
         ro_inf = 2. / (1. - beta_2_t) - 1.                                  # max len of the approx SMA
 
-        # lr = (lr_t * tf.math.sqrt(1 - beta_2_power) / (1 - beta_1_power)) # TODO - why
-
         g_t = grad
 
         # v_t = beta2*v + (1-beta2)*g_t^2
