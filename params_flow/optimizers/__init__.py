@@ -7,3 +7,5 @@ from __future__ import absolute_import, division, print_function
 
 
 from .radam import RAdam
+from .lookahead import LookaheadOptimizerCallback
+

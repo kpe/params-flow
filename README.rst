@@ -59,6 +59,7 @@ code like this:
 NEWS
 ----
 
+ - **05.Sep.2019** - `LookAhead`_ optimizer implementation as Keras callback added.
  - **04.Sep.2019** - `RAdam`_ optimizer implementation added.
 
 LICENSE
@@ -151,3 +152,5 @@ Resources
 .. _`Keras`: https://keras.io
 .. _`BERT`: https://github.com/google-research/bert
 .. _`RAdam`: https://arxiv.org/abs/1908.03265
+.. _`LookAhead`: https://arxiv.org/abs/1907.08610
+
