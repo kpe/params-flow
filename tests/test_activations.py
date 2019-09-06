@@ -18,6 +18,10 @@ tf.enable_eager_execution()
 
 class TestActivations(unittest.TestCase):
 
+    def setUp(self) -> None:
+        tf.reset_default_graph()
+        tf.enable_eager_execution()
+
     def test_gelu(self):
         gelu = pf.get_activation("gelu")
         gelu_exact = pf.get_activation("gelu_exact")

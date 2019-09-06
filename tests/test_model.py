@@ -63,8 +63,8 @@ class ModelTest(unittest.TestCase):
         model = CustomModel(num_units=13)
         # model.build(input_shape=(16,3,4))
         model.compile(optimizer='adam', loss='mse')
-        model.fit(tf.zeros((16,3,4), dtype=tf.float32),
-                  tf.ones((16,3,13), dtype=tf.float32), steps_per_epoch=2)
+        model.fit(tf.zeros((16, 3, 4), dtype=tf.float32),
+                  tf.ones((16, 3, 13), dtype=tf.float32), steps_per_epoch=2)
         model.summary()
 
     def test_seq_model(self):
