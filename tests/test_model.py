@@ -70,7 +70,7 @@ class ModelTest(unittest.TestCase):
     def test_seq_model(self):
         model = keras.Sequential([CustomLayer(num_units=17),
                                   LayerNormalization()])
-        model.compute_output_shape(input_shape=(16, 3,4))
+        model.compute_output_shape(input_shape=(16, 3, 4))
         # model.build(input_shape=(16, 3, 4))
         model.compile(optimizer='adam', loss='mse')
         model.fit(tf.ones((16, 3, 4), dtype=tf.float32),

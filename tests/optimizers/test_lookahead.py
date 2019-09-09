@@ -10,141 +10,130 @@ import unittest
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python import keras
+
+from tensorflow import keras
 
 import params_flow as pf
 
 
 class LookAheadTest(unittest.TestCase):
+    seq_len    = 4
+    batch_size = 64
+    ds_size    = int(5e6)
 
     def setUp(self) -> None:
-        tf.enable_eager_execution()
+        eager = False
+
+        tf.compat.v1.reset_default_graph()
+        if eager:
+            tf.compat.v1.enable_eager_execution()
+        else:
+            tf.compat.v1.disable_eager_execution()
+
+        tf.compat.v1.set_random_seed(4711)
+        self.train_ds, self.valid_ds = self.get_ds(), self.get_ds(size=int(1e5))
 
 
 
     @staticmethod
-    def to_train_pair(x):
-        y = tf.reduce_sum(x, axis=-1)
-        y = tf.mod(y, 2)
-        return tf.cast(x, tf.float32), y
+    def get_ds(shape=(seq_len,), size=int(ds_size), batch_size=batch_size):
+        # generate in batches (to improve performance)
+        ds_shape = [size//10]+list(shape)
 
-    @staticmethod
-    def get_ds(shape):
-        ds_shape = [1000]+list(shape)
-        def gen():
-            while True:
-                x = np.round(np.random.random_sample(ds_shape)).astype(np.int32)
-                yield x
-        ds = tf.data.Dataset.from_generator(gen, output_shapes=ds_shape, output_types=tf.int32)
+        def to_train_pair(x):
+            y = tf.reduce_sum(x, axis=-1)    # ones count
+            y = tf.math.mod(y, 2)            # ones count mod 2
+            return tf.cast(x, tf.float32), y
+
+        # dataset from random tensors of zeros and ones
+        ds = tf.data.Dataset.from_tensor_slices(
+            [tf.cast(tf.round(tf.random_uniform(ds_shape)), tf.int64) for _ in range(10)])
+        ds = ds.shuffle(10000)
+        ds = ds.map(to_train_pair)
         ds = ds.apply(tf.data.experimental.unbatch())
+        ds = ds.batch(batch_size)
         return ds
-
-    def test_lookahead(self):
-        return  # don't run in CI as this takes time
-
-        ds = self.get_ds(shape=(16, 4))
-        ds = ds.map(self.to_train_pair)
-        ds = ds.shuffle(1000)
-
-        for optimizer in [keras.optimizers.Adam(), pf.optimizers.RAdam(),
-                          keras.optimizers.RMSprop(), keras.optimizers.SGD()]:
-            for use_lookahead in [True, False]:
-                callbacks = [pf.optimizers.LookaheadOptimizerCallback()] if use_lookahead else []
-                epochs = [self.train_model(ds, optimizer, callbacks) for _ in range(10)]
-                epochs = np.array(epochs)
-                print("(opt:{:>8s}, LA:{:>6s}) trained in {:4.1f} epochs (std: {:.2f})".format(
-                    optimizer.__class__.__name__, str(use_lookahead),
-                    epochs.mean(), epochs.std()))
 
     class StopTraining(keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs=None):
             acc = logs.get("acc")
-            if np.abs(acc - 1.) < 0.0001:
+            val_acc = logs.get("val_acc")
+            if np.abs(acc - 1.) < 0.0001 and np.abs(val_acc - 1.) < 0.0001:
                 self.model.stop_training = True
 
-    def train_model(self, ds, optimizer, callbacks):
-
+    def build_model(self, optimizer, use_wrapper):
         model = keras.Sequential([
-            keras.layers.Dense(32, activation="tanh"),
+            keras.layers.Dense(2 ** (self.seq_len+2), activation="tanh"),
             keras.layers.Dense(2, activation="softmax"),
         ])
-
+        model.build((self.batch_size, self.seq_len))
         model.compile(optimizer=optimizer,
                       loss=keras.losses.SparseCategoricalCrossentropy(),
                       metrics=[keras.metrics.SparseCategoricalAccuracy(name="acc")])
 
-        hist = model.fit(ds,
-                         steps_per_epoch=200,
-                         epochs=500,
-                         callbacks=callbacks+[self.StopTraining()],
-                         verbose=0)
-        epoch_acc = hist.history['acc']
-        return len(epoch_acc)
-
-    def test_cover(self):
-        ds = self.get_ds(shape=(2, 4))
-        ds = ds.repeat()
-        ds = ds.map(self.to_train_pair)
-        model = keras.Sequential([
-            keras.layers.Dense(4, activation="tanh"),
-            keras.layers.Dense(2, activation="softmax"),
-        ])
-        model.compile(optimizer=pf.optimizers.RAdam(), loss=keras.losses.SparseCategoricalCrossentropy(),)
-        model.fit(ds, steps_per_epoch=1, epochs=20,
-                  callbacks=[pf.optimizers.LookaheadOptimizerCallback()])
-
-    def test_cover_wrap(self):
-        ds = self.get_ds(shape=(2, 4))
-        ds = ds.repeat()
-        ds = ds.map(self.to_train_pair)
-        model = keras.Sequential([
-            keras.layers.Dense(4, activation="tanh"),
-            keras.layers.Dense(2, activation="softmax"),
-        ])
-        model.build(input_shape=(2, 4))
-        model.compile(optimizer=pf.optimizers.RAdam(),
-                      loss=keras.losses.SparseCategoricalCrossentropy(),)
-
-        #pf.optimizers.lookahead.OptimizerLookaheadWrapper().wrap(model)
-
-        model.fit(ds, steps_per_epoch=1, epochs=20)
-
-    def train_model_wrap(self, ds, optimizer, use_lookahead):
-
-        model = keras.Sequential([
-            keras.layers.Dense(32, activation="tanh"),
-            keras.layers.Dense(2, activation="softmax"),
-        ])
-
-        model.compile(optimizer=optimizer,
-                      loss=keras.losses.SparseCategoricalCrossentropy(),
-                      metrics=[keras.metrics.SparseCategoricalAccuracy(name="acc")])
-
-        if use_lookahead:
+        if use_wrapper:
             lookahead = pf.optimizers.lookahead.OptimizerLookaheadWrapper()
             model = lookahead.wrap(model)
 
-        hist = model.fit(ds,
-                         steps_per_epoch=200,
-                         epochs=500,
-                         callbacks=[self.StopTraining()],
+        return model
+
+    def test_cover_callback(self):
+        model = self.build_model(pf.optimizers.RAdam(), False)
+        lookahead_callback = pf.optimizers.LookaheadOptimizerCallback()
+        model.fit(self.get_ds(), steps_per_epoch=2, epochs=20, callbacks=[lookahead_callback])
+
+    def test_cover_wrapper(self):
+        model = self.build_model(pf.optimizers.RAdam(), True)
+        model.fit(self.get_ds(), steps_per_epoch=2, epochs=20)
+
+    def train_model(self, optimizer, use_lookahead, use_wrapper):
+        model = self.build_model(optimizer, use_wrapper)
+
+        callbacks = [self.StopTraining()]
+        if use_lookahead:
+            if use_wrapper:
+               pass
+            else:
+                callbacks = [pf.optimizers.LookaheadOptimizerCallback()] + callbacks
+
+        hist = model.fit(self.train_ds,
+                         steps_per_epoch=2**(2*self.seq_len),
+                         epochs=1000,
+                         validation_data=self.valid_ds,
+                         validation_steps=1,
+                         callbacks=callbacks,
                          verbose=0)
+
         epoch_acc = hist.history['acc']
         return len(epoch_acc)
 
-    def test_lookahead_wrap(self):
+    def compare_optimizers_test_lookahead(self, use_wrapper=True):
         return  # don't run in CI as this takes time
 
-        ds = self.get_ds(shape=(16, 4))
-        ds = ds.map(self.to_train_pair)
-        ds = ds.shuffle(1000)
+        lr = 3e-3
+        repeat_count = 10
 
-        for optimizer in [keras.optimizers.Adam(), pf.optimizers.RAdam(),
-                          keras.optimizers.RMSprop(), keras.optimizers.SGD()]:
+        print("learning_rate", lr)
+        print(" repeat_count", repeat_count)
+        print("        eager", tf.executing_eagerly())
+        print("         impl", "wrapper" if use_wrapper else "callback")
+
+        for optimizer in [
+                          pf.optimizers.RAdam(learning_rate=lr),
+                          keras.optimizers.Adam(learning_rate=lr),
+                          keras.optimizers.RMSprop(learning_rate=lr),
+                          keras.optimizers.SGD(learning_rate=lr)]:
             for use_lookahead in [True, False]:
-                epochs = [self.train_model_wrap(ds, optimizer, use_lookahead) for _ in range(10)]
+                epochs = [self.train_model(optimizer, use_lookahead, use_wrapper) for _ in range(repeat_count)]
                 epochs = np.array(epochs)
-                print("(opt:{:>8s}, LA:{:>6s}) trained in {:4.1f} epochs (std: {:.2f})".format(
+                print("(opt:{:>8s}, LA:{:>6s} impl:{:>9s}) trained in {:4.1f} epochs (std: {:.2f})".format(
                     optimizer.__class__.__name__, str(use_lookahead),
+                    "wrapper" if use_wrapper else "callback",
                     epochs.mean(), epochs.std()))
+
+    def test_lookahead_callback(self):
+        self.compare_optimizers_test_lookahead(use_wrapper=False)
+
+    def test_lookahead_wrapper(self):
+        self.compare_optimizers_test_lookahead(use_wrapper=True)
 
