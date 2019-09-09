@@ -62,7 +62,7 @@ class OptimizerLookaheadWrapper:
                 self.slow_weights = []
                 for fast_param in model.trainable_weights:
                     with ops.control_dependencies([fast_param]):
-                        slow_param = K.variable(fast_param.initialized_value(), #read_value(),
+                        slow_param = K.variable(fast_param.initialized_value(),
                                                 dtype=fast_param.dtype,
                                                 name=fast_param.name.split(":")[0])
                     self.slow_weights.append(slow_param)
