@@ -58,7 +58,7 @@ code like this:
 
 NEWS
 ----
-
+ - **11.Sep.2019** - `LookAhead`_ optimizer wrapper implementation for efficient non eager graph mode execution (TPU) added.
  - **05.Sep.2019** - `LookAhead`_ optimizer implementation as Keras callback added.
  - **04.Sep.2019** - `RAdam`_ optimizer implementation added.
 
