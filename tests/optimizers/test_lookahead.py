@@ -17,16 +17,42 @@ from tensorflow import keras
 import params_flow as pf
 
 
+class StopTraining(keras.callbacks.Callback):
+    """ Stops the training when both train and validation accuracy
+    reach the accuracy target (by default 100%). """
+
+    patience = 3
+    acc_target = .95  # 0.95
+
+    def __init__(self):
+        super(StopTraining, self).__init__()
+        self.hit_count = 0
+
+    def on_epoch_end(self, epoch, logs=None):
+        acc = logs.get("acc")
+        if "val_acc" not in logs:
+            return
+        val_acc = logs.get("val_acc")
+        if (self.acc_target - 0.0001) < acc and (self.acc_target - 0.0001) < val_acc:
+            self.hit_count += 1
+            if self.patience <= self.hit_count:
+                self.model.stop_training = True
+        else:
+            self.hit_count = 0
+
+
 class LookAheadTest(unittest.TestCase):
     """
     This test case will compare different optimizers with and without lookahead,
     by training a 2-layer FFN/MLP classifier counting the number of ones in a binary sequence.
 
-    To demonstrate the lookahead stabilizing ability on the training, we'll use
+    N.B. To demonstrate the lookahead stabilizing ability on the training, we'll use
     large learning rates, small batch sizes, and an overparameterized network.
+    (as it seems - when the gradient updates are less noisy, lookahead might not have a
+    noticeable effect and might event inhibit the training).
     """
-    seq_len    = 6
-    batch_size = 4
+    seq_len    = 10
+    batch_size = 8
     ds_size    = int(5e6)
 
     def setUp(self) -> None:
@@ -68,18 +94,6 @@ class LookAheadTest(unittest.TestCase):
         ds = ds.batch(batch_size)
         return ds
 
-    class StopTraining(keras.callbacks.Callback):
-        acc_target = 1.
-        """ Stops the training when both train and validation accuracy 
-        reach the accuracy target (by default 100%). """
-        def on_epoch_end(self, epoch, logs=None):
-            acc = logs.get("acc")
-            if "val_acc" not in logs:
-                return
-            val_acc = logs.get("val_acc")
-            if (self.acc_target - 0.0001) < acc and (self.acc_target - 0.0001) < val_acc:
-                self.model.stop_training = True
-
     def test_cover_callback(self):
         model = self.build_model(pf.optimizers.RAdam(), False)
         lookahead_callback = pf.optimizers.LookaheadOptimizerCallback()
@@ -98,7 +112,8 @@ class LookAheadTest(unittest.TestCase):
     def build_model(self, optimizer, use_wrapper):
         model = keras.Sequential([
             keras.layers.Dense(self.seq_len * 4, activation="relu"),
-            keras.layers.Dense(self.seq_len * 3, activation="relu"),
+            keras.layers.Dense(self.seq_len * 4, activation="relu"),
+            keras.layers.Dense(self.seq_len * 4, activation="relu"),
             keras.layers.Dense(self.seq_len + 1, activation="softmax"),
         ])
         model.compile(optimizer=optimizer,
@@ -126,26 +141,30 @@ class LookAheadTest(unittest.TestCase):
                 callbacks = [pf.optimizers.LookaheadOptimizerCallback()]
 
         hist = model.fit(self.train_ds,
-                         steps_per_epoch=16,
-                         epochs=1500,
+                         steps_per_epoch=8,
+                         epochs=300,
                          validation_data=self.valid_ds,
                          validation_steps=2**self.seq_len/self.batch_size,
                          validation_freq=1,
-                         callbacks=callbacks + [self.StopTraining()],
+                         callbacks=callbacks + [StopTraining()],
                          verbose=0)
 
-        epoch_acc = hist.history['acc']
-        return len(epoch_acc)
+        epoch_acc  = hist.history['val_acc']
+        final_loss = hist.history['val_loss'][-3:]
+        return len(epoch_acc), np.mean(final_loss), np.std(final_loss), np.mean(epoch_acc[-3:])
 
     @staticmethod
     def reject_outliers(data, m=2):
-        res = data[abs(data - np.mean(data)) < m * np.std(data)]
+        res = data
+        outliers = abs(data - np.mean(data)) < m * np.std(data)
+        if any(outliers):
+            res = data[outliers]
         return res
 
     def compare_optimizers_test_lookahead(self, use_wrapper=True):
         return  # don't run in CI as this takes time
 
-        lr = 3e-2           # using large learning rate to provoke unstable training
+        lr = 5e-3           # using large learning rate to provoke unstable training
         repeat_count = 10
 
         print("learning_rate", lr)
@@ -153,18 +172,23 @@ class LookAheadTest(unittest.TestCase):
         print("        eager", tf.executing_eagerly())
         print("         impl", "wrapper" if use_wrapper else "callback")
 
-        for optimizer_type in [pf.optimizers.RAdam, keras.optimizers.Adam,
+        for optimizer_type in [keras.optimizers.Adam, pf.optimizers.RAdam,
                                keras.optimizers.RMSprop, keras.optimizers.SGD]:
-            for use_lookahead in [True, False, False, True]:
-                epochs = [self.train_model(optimizer_type(learning_rate=lr), use_lookahead, use_wrapper)
+            for use_lookahead in [True, False, True, False]:
+                hist   = [self.train_model(optimizer_type(learning_rate=lr), use_lookahead, use_wrapper)
                           for _ in range(repeat_count)]
 
-                epochs = np.array(epochs)
+                epochs, loss, loss_std, acc = map(np.array, zip(*hist))
                 clean_epochs = self.reject_outliers(epochs)
 
                 print("(opt:{:>8s}, LA:{:>6s} impl:{:>9s}) trained in {:5.1f} steps (std: {:5.1f}): [{}]".format(
                     optimizer_type.__name__, str(use_lookahead),
                     "wrapper" if use_wrapper else "callback",
                     clean_epochs.mean(), clean_epochs.std(),
-                    ", ".join([("{}" if abs(steps - clean_epochs.mean()) < 2*clean_epochs.std() else "({})").format(steps)
-                               for steps in sorted(epochs)])))
+                    ", ".join([("{}" if abs(steps - clean_epochs.mean()) <= 2*clean_epochs.std() else "({})").format(steps)
+                               for steps in epochs])),
+                    "final loss: {:.3f} ({:.3f})".format(loss.mean(), loss_std.mean()),
+                    "[{}]".format(", ".join(["{:.3f}".format(l) for l in loss])),
+                    "acc: {:.4f}".format(acc.mean()),
+                    "val_acc: [{}]".format(", ".join(["{:.3f}".format(a) for a in acc]))
+                )

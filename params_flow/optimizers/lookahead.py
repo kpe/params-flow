@@ -33,14 +33,26 @@ class LookaheadOptimizerCallback(keras.callbacks.Callback):
     def on_train_batch_end(self, batch, logs=None):
         self.count += 1
         if self.slow_weights is None:
-            self.slow_weights = self.model.trainable_weights
+            with tf.control_dependencies(self.model.trainable_weights):
+                self.slow_weights = []
+                for fast_param in self.model.trainable_weights:
+                    with ops.control_dependencies([fast_param]):
+                        slow_param = tf.Variable(fast_param.initialized_value(),
+                                                 dtype=fast_param.dtype,
+                                                 trainable=False,
+                                                 name=fast_param.name.split(":")[0])
+                    self.slow_weights.append(slow_param)
+                    K.track_variable(slow_param)
         else:
             if self.count % self.k == 0:
                 slow_ups, fast_ups = [], []
                 for fast, slow in zip(self.model.trainable_weights,
                                       self.slow_weights):
                     slow_ups.append(K.update(slow, slow + self.alpha * (fast - slow)))
-                    fast_ups.append(K.update(fast, slow))
+                with tf.control_dependencies(slow_ups):
+                    for fast, slow in zip(self.model.trainable_weights,
+                                          self.slow_weights):
+                        fast_ups.append(K.update(fast, slow))
                 K.batch_get_value(slow_ups)
                 K.batch_get_value(fast_ups)
 
@@ -56,15 +68,16 @@ class OptimizerLookaheadWrapper:
         with K.name_scope("training"):
             with K.name_scope("Lookahead"):
                 # initialize counter and slow_weights
-                self.count = K.variable(0, dtype=tf.int32, name="update_count")
+                self.count = tf.Variable(0, dtype=tf.int32, trainable=False, name="update_count")
                 K.track_variable(self.count)
 
                 self.slow_weights = []
                 for fast_param in model.trainable_weights:
                     with ops.control_dependencies([fast_param]):
-                        slow_param = K.variable(fast_param.initialized_value(),
-                                                dtype=fast_param.dtype,
-                                                name=fast_param.name.split(":")[0])
+                        slow_param = tf.Variable(fast_param.initialized_value(),
+                                                 dtype=fast_param.dtype,
+                                                 trainable=False,
+                                                 name=fast_param.name.split(":")[0])
                     self.slow_weights.append(slow_param)
                     K.track_variable(slow_param)
 
@@ -73,14 +86,15 @@ class OptimizerLookaheadWrapper:
                 with K.name_scope("Lookahead"):
 
                     # count++ mod k
-                    count_op = state_ops.assign(self.count, self.count + 1, self.k)
+                    count_op = state_ops.assign_add(self.count, 1)
 
                     def fast_update():
                         return control_flow_ops.no_op()
 
                     def slow_update():
-                        slow_ups = [state_ops.assign_add(slow, (fast - slow) * self.alpha)
-                                    for slow, fast in zip(self.slow_weights, model.trainable_weights)]
+                        with ops.control_dependencies(model.trainable_weights):
+                            slow_ups = [state_ops.assign_add(slow, (fast - slow) * self.alpha)
+                                        for slow, fast in zip(self.slow_weights, model.trainable_weights)]
 
                         with ops.control_dependencies(slow_ups):
                             fast_ups = [state_ops.assign(fast, slow)
