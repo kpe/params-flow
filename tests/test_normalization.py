@@ -8,8 +8,9 @@ from __future__ import division, absolute_import, print_function
 import tempfile
 import unittest
 
+import os
 import numpy as np
-from tensorflow.python import keras
+from tensorflow import keras
 
 from params_flow import LayerNormalization
 
@@ -64,10 +65,10 @@ class TestLayerNormalization(unittest.TestCase):
         model.compile(optimizer='adam', loss='mse')
         model.summary()
 
-        with tempfile.NamedTemporaryFile() as temp_file:
-            temp_file.file.close()
-            model.save(temp_file.name)
-            model = keras.models.load_model(temp_file.name, custom_objects={
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_file = os.path.join(temp_dir, "model")
+            model.save(temp_file)
+            model = keras.models.load_model(temp_file, custom_objects={
                 "LayerNormalization": LayerNormalization
             })
             model.summary()

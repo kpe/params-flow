@@ -8,6 +8,7 @@ from __future__ import division, absolute_import, print_function
 import unittest
 import tempfile
 
+import os
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -35,10 +36,10 @@ class TestWrapper(unittest.TestCase):
         res = model.predict(x)
         print(res)
 
-        with tempfile.NamedTemporaryFile() as temp_file:
-            temp_file.file.close()
-            model.save(temp_file.name)
-            model = keras.models.load_model(temp_file.name, custom_objects={
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_file = os.path.join(temp_dir, "model")
+            model.save(temp_file)
+            model = keras.models.load_model(temp_file, custom_objects={
                 "Concat": pf.Concat
             })
             model.summary()
@@ -49,6 +50,7 @@ class TestWrapper(unittest.TestCase):
         # coverage
         res = model.layers[0].call(x)
         print(res)
+        model = keras.models.Sequential.from_config(model.get_config(), custom_objects={"Concat": pf.Concat})
 
     def test_compile(self):
         model = keras.models.Sequential([

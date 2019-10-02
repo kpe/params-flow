@@ -13,14 +13,12 @@ import numpy as np
 
 import params_flow as pf
 
-tf.enable_eager_execution()
-
 
 class TestActivations(unittest.TestCase):
 
     def setUp(self) -> None:
-        tf.reset_default_graph()
-        tf.enable_eager_execution()
+        tf.compat.v1.reset_default_graph()
+        tf.compat.v1.enable_eager_execution()
 
     def test_gelu(self):
         gelu = pf.get_activation("gelu")

@@ -29,7 +29,7 @@ script:
     - export MAJOR_PYTHON_VERSION=`echo $TRAVIS_PYTHON_VERSION | cut -c 1`
     - coverage run --source=params_flow $(which nosetests)
                    --with-doctest tests/
-    - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then coverage report --show-missing --fail-under=100 ; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then coverage report --show-missing --fail-under=90 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pycodestyle --ignore=$PEP8_IGNORE  --exclude=tests,.venv -r --show-source . ; fi
     # For convenience, make sure simple test commands work
     - python setup.py develop

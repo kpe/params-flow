@@ -8,11 +8,12 @@ from __future__ import division, absolute_import, print_function
 import unittest
 import tempfile
 
+import os
 import params
 import params_flow as pf
 from params_flow import Layer, Model
 
-from tensorflow.python import keras
+from tensorflow import keras
 
 
 class SomeLayer(Layer):
@@ -53,10 +54,11 @@ class ParamsFlowTest(unittest.TestCase):
     def test_serialization(self):
         slayer = SomeLayer()
 
-        with tempfile.NamedTemporaryFile('wt') as temp_file:
-            temp_file.file.write(slayer.params.to_json_string())
-            temp_file.file.close()
-            nlayer = SomeLayer.from_json_file(temp_file.name)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_file = os.path.join(temp_dir, "params.json")
+            with open(temp_file, "wt") as f:
+                f.write(slayer.params.to_json_string())
+            nlayer = SomeLayer.from_json_file(temp_file)
 
         self.assertEqual(dict(slayer.params), dict(nlayer.params))
 
