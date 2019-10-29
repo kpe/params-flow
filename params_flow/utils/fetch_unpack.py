@@ -7,28 +7,30 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import re
-from urllib import request
-from urllib.request import urlretrieve
+import urllib
 
 
 from tqdm import tqdm
 
 
-def fetch_url(url, fetch_dir, check_content_length=False):
+def fetch_url(url, fetch_dir, check_content_length=False, local_file_name=None):
     """
     Downloads the specified url to a local dir.
     :param url:
     :param fetch_dir:
     :param check_content_length:
+    :param local_file_name:
     :return: local path of the downloaded file
     """
-    local_file_name = url.split('/')[-1]
+    if local_file_name is None:
+        url_path = urllib.parse.urlparse(url).path
+        local_file_name = url_path.split('/')[-1]
     local_path = os.path.join(fetch_dir, local_file_name)
 
     already_fetched = False
     if os.path.isfile(local_path):
         if check_content_length:
-            content_length = int(request.urlopen(url).getheader("Content-Length"))
+            content_length = int(urllib.request.urlopen(url).getheader("Content-Length"))
             already_fetched = os.stat(local_path).st_size == content_length
         else:
             already_fetched = True
@@ -43,7 +45,7 @@ def fetch_url(url, fetch_dir, check_content_length=False):
                 if total_size:
                     pbar.total = total_size
                 pbar.update(block_size)
-            urlretrieve(url, local_path, report_hook, data=None)
+            urllib.request.urlretrieve(url, local_path, report_hook, data=None)
     return local_path
 
 
