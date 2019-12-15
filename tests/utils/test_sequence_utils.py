@@ -92,3 +92,18 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(iob_seq(5, -2, -1, 1, 2, 7).numpy().tolist(), [0, 0, 0, 0, 0])
         self.assertEqual(iob_seq(5, -2, -3, 1, 2, 7).numpy().tolist(), [0, 0, 0, 0, 0])
 
+    def test_iob_seq_ragged(self):
+        self.assertEqual(iob_seq(5,
+                                 tf.ragged.constant([-1, -2]),
+                                 tf.ragged.constant([-1,  3]), 1, 2, 7).numpy().tolist(),
+                         [[0, 0, 0, 0, 0],
+                          [7, 7, 7, 2, 0]])
+
+    def test_iob_seq_vec_tag_ragged(self):
+        self.assertEqual(iob_seq(6,
+                                 tf.ragged.constant([[2, 1], [1]]),
+                                 tf.ragged.constant([[4, 4], [3]]), 1, 2,
+                                 tf.ragged.constant([[7, 9], [9]])).to_list(),
+                         [[[0, 0, 1, 7, 2, 0],
+                           [0, 1, 9, 9, 2, 0]],
+                          [[0, 1, 9, 2, 0, 0]]])

@@ -19,15 +19,17 @@ def iob_seq(length, start, end, b_tag, e_tag, i_tag):
     :param i_tag: integer tag denoting the inside of the sequence (could be a vector too).
     Note: b_tag takes preceedence over e_tag, and e_tag over i_tag.
     """
-    rstart = tf.where(tf.less(start, 0), tf.where(tf.less(end, 0), -1, -1), start)
-    rend   = tf.where(tf.less(end, 0), tf.where(tf.less(start, 0), -1, length), tf.minimum(end, length))
+    def _where(cond, tval, fval):
+        return tf.cast(cond, tf.int32) * tval + tf.cast(tf.logical_not(cond), tf.int32) * fval
+    rstart = _where(tf.less(start, 0), -1, start)
+    rend   = _where(tf.less(end, 0), _where(tf.less(start, 0), -1, length), tf.minimum(end, length))
     srange = tf.range(length)
     s_mask = tf.greater(srange, tf.expand_dims(rstart, -1))
     e_mask = tf.less(srange, tf.expand_dims(rend, -1))
-    i_seq  = tf.cast(tf.logical_and(s_mask, e_mask), tf.int32) * tf.reshape(i_tag, [-1, 1][:len(tf.shape(s_mask))])
+    i_seq  = tf.cast(tf.logical_and(s_mask, e_mask), tf.int32) * tf.expand_dims(i_tag, -1)
     b_seq  = tf.cast(tf.equal(srange, tf.expand_dims(rstart, -1)), tf.int32) * b_tag
     e_seq  = tf.cast(tf.equal(srange, tf.expand_dims(rend, -1)), tf.int32) * e_tag
     # tag preceedence begin, end, inside
-    result = tf.where(tf.equal(e_seq, 0), i_seq, e_seq)
-    result = tf.where(tf.equal(b_seq, 0), result, b_seq)
+    result = _where(tf.equal(e_seq, 0), i_seq, e_seq)
+    result = _where(tf.equal(b_seq, 0), result, b_seq)
     return result
