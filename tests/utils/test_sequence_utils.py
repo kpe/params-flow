@@ -10,6 +10,7 @@ import tensorflow as tf
 
 from params_flow.utils import iob_seq
 
+
 def novec_iob_seq(length, start, end, b_tag, e_tag, i_tag):
     """
     Creates an IOB sequence.
@@ -31,6 +32,11 @@ class MyTestCase(unittest.TestCase):
     def setUp(self) -> None:
         tf.compat.v1.reset_default_graph()
         tf.compat.v1.enable_eager_execution()
+
+    def test_iob_seq_vec_tag(self):
+        self.assertEqual(iob_seq(6, [2, 1], [4, 4], 1, 2, [7, 9]).numpy().tolist(),
+                         [[0, 0, 1, 7, 2, 0],
+                          [0, 1, 9, 9, 2, 0]])
 
     def test_iob_seq_vec(self):
         self.assertEqual(iob_seq(5, [2, 1], [3, 4], 1, 2, 7).numpy().tolist(),
