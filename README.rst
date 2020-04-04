@@ -11,13 +11,13 @@ passing and (de)serializing your model/layer configuration arguments.
 
 .. code:: python
 
-   import params_flow
+   import params_flow as pf
 
-   class MyDenseLayer(params_flow.Layer):      # using params_flow Layer/Model instead of Keras ones
-     class Params(params_flow.Layer.Params):   # extend one or more base Params configurations
-       num_outputs = None                      # declare all configuration arguments
-       activation = "gelu"                     #   provide or override super() defaults
-                                               # do not define an __init__()
+   class MyDenseLayer(pf.Layer):      # using params_flow Layer/Model instead of Keras ones
+     class Params(pf.Layer.Params):   # extend one or more base Params configurations
+       num_outputs = None             # declare all configuration arguments
+       activation = "gelu"            #   provide or override super() defaults
+                                      # do not define an __init__()
 
      def build(self, in_shape):
        self.kernel = self.add_variable("kernel",
@@ -58,6 +58,8 @@ code like this:
 
 NEWS
 ----
+ - **04.Apr.2020** - refactored to use ``WithParams`` mixin from `kpe/py-params`_. Make
+   sure to use ``_construct()`` instead of ``__init__()`` in your ``Layer`` and ``Model`` subclasses.
  - **11.Sep.2019** - `LookAhead`_ optimizer wrapper implementation for efficient non eager graph mode execution (TPU) added.
  - **05.Sep.2019** - `LookAhead`_ optimizer implementation as Keras callback added.
  - **04.Sep.2019** - `RAdam`_ optimizer implementation added.

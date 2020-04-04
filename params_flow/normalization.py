@@ -6,8 +6,6 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-from tensorflow.python import keras
-
 import params_flow as pf
 
 
@@ -32,18 +30,19 @@ class LayerNormalization(Normalization):
     class Params(Normalization.Params):
         epsilon         = 1e-12
 
-    def _construct(self, params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
         self.gamma = None
         self.beta  = None
         self.supports_masking = True
 
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
-        self.input_spec = keras.layers.InputSpec(shape=input_shape)
-        self.gamma = self.add_weight(name="gamma", shape=input_shape[-1:], initializer=keras.initializers.Ones(),
-                                     trainable=True)
-        self.beta  = self.add_weight(name="beta", shape=input_shape[-1:], initializer=keras.initializers.Zeros(),
-                                     trainable=True)
+        self.input_spec = tf.keras.layers.InputSpec(shape=input_shape)
+        self.gamma = self.add_weight(name="gamma", shape=input_shape[-1:],
+                                     initializer=tf.keras.initializers.Ones(), trainable=True)
+        self.beta  = self.add_weight(name="beta", shape=input_shape[-1:],
+                                     initializer=tf.keras.initializers.Zeros(), trainable=True)
         super(LayerNormalization, self).build(input_shape)
 
     def call(self, inputs, **kwargs):                               # pragma: no cover

@@ -9,8 +9,6 @@ import unittest
 
 import tensorflow as tf
 import params_flow as pf
-
-from tensorflow import keras
 from params_flow import Layer, Model, LayerNormalization
 
 
@@ -18,7 +16,8 @@ class CustomLayer(Layer):
     class Params(Layer.Params):
         num_units = 11
 
-    def _construct(self, params):
+    def _construct(self):
+        super()._construct()
         self.supports_masking = True
 
     def build(self, input_shape):
@@ -46,8 +45,9 @@ class CustomModel(Model):
     class Params(Model.Params):
         num_units = 12
 
-    def _construct(self, params):
-        self.layer = CustomLayer.from_params(params)
+    def _construct(self):
+        super()._construct()
+        self.layer = CustomLayer.from_params(self.params)
         self.norm  = LayerNormalization()
         self.supports_masking = True
 
@@ -68,8 +68,8 @@ class ModelTest(unittest.TestCase):
         model.summary()
 
     def test_seq_model(self):
-        model = keras.Sequential([CustomLayer(num_units=17),
-                                  LayerNormalization()])
+        model = tf.keras.Sequential([CustomLayer(num_units=17),
+                                     LayerNormalization()])
         model.compute_output_shape(input_shape=(16, 3, 4))
         # model.build(input_shape=(16, 3, 4))
         model.compile(optimizer='adam', loss='mse')

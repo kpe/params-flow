@@ -6,20 +6,17 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-from tensorflow.python import keras
+import params as pp
+import params_flow as pf
 
-from params import Params
 
-
-class Model(keras.Model):
-    class Params(Params):
+class Model(pp.WithParams, tf.keras.Model):
+    class Params(pp.WithParams.Params):
         pass
 
-    def __init__(self, **kwargs):
-        _params, other_args = self.__class__.Params.from_dict(kwargs)
-        super(Model, self).__init__(**other_args)
-        self._params = _params
-        self._construct(self.params)
+    def _construct(self, *args, **kwargs):
+        """ Override model construction. """
+        super()._construct(*args, **kwargs)
 
     @property
     def params(self):
@@ -27,7 +24,3 @@ class Model(keras.Model):
 
     def compute_mask(self, inputs, mask):
         return mask  # pragma: no cover
-
-    def _construct(self, params):
-        """ Override model construction. """
-        pass

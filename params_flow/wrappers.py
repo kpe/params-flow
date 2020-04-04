@@ -9,22 +9,17 @@ import copy
 from typing import List
 
 import tensorflow as tf
-from tensorflow import keras
-
-from params_flow import Layer
+import params_flow as pf
 
 
-class Wrapper(Layer):
-    class Params(Layer.Params):
+class Wrapper(pf.Layer):
+    class Params(pf.Layer.Params):
         pass
 
-    def __init__(self, layers: List[keras.layers.Layer], **kwargs):
-        super(Wrapper, self).__init__(**kwargs)
+    def _construct(self, layers: List[tf.keras.layers.Layer], **kwargs):
+        super()._construct(**kwargs)
         self.layers = [layer for layer in layers]
-
-    def _construct(self, params):
         self.supports_masking = True
-        super(Wrapper, self)._construct(params)
 
     def get_config(self):
         base_config = super(Wrapper, self).get_config()
@@ -45,14 +40,13 @@ class Wrapper(Layer):
     def from_config(cls, config, custom_objects=None):
         wrapped_layers = []
         for layer_config in config['layers']:
-            layer = keras.layers.deserialize(layer_config,
-                                             custom_objects=custom_objects)
+            layer = tf.keras.layers.deserialize(layer_config, custom_objects=custom_objects)
             wrapped_layers.append(layer)
         wrapper = cls(wrapped_layers, **config['config'])
         return wrapper
 
     def build(self, input_shape):
-        self.input_spec = keras.layers.InputSpec(shape=input_shape)
+        self.input_spec = tf.keras.layers.InputSpec(shape=input_shape)
         for layer in self.layers:
             layer.build(input_shape)
         super(Wrapper, self).build(input_shape)

@@ -8,34 +8,23 @@ from __future__ import absolute_import, division, print_function
 import json
 
 import tensorflow as tf
-from tensorflow.python import keras
+import params as pp
+import params_flow as pf
 
 from params import Params
 
 
-class Layer(keras.layers.Layer):
-    class Params(Params):
-        trainable   = True
-        name        = None
-        dtype       = tf.float32.name
-        dynamic     = False
+class Layer(pp.WithParams, tf.keras.layers.Layer):
+    class Params(pp.WithParams.Params):
+        pass
 
-    def __init__(self, **kwargs):
-        self._params, other_args = self.__class__.Params.from_dict(kwargs)
-        super(Layer, self).__init__(trainable=self._params.trainable,
-                                    name=self._params.name,
-                                    dtype=tf.dtypes.as_dtype(self._params.dtype),
-                                    dynamic=self._params.dynamic,
-                                    **other_args)
-        self._construct(self.params)
+    def _construct(self, **kwargs):
+        """ Override layer construction. """
+        super()._construct(**kwargs)
 
     @property
     def params(self) -> Params:
         return self._params
-
-    def _construct(self, params):
-        """ Override layer construction. """
-        pass
 
     def compute_mask(self, inputs, mask=None):
         return mask
@@ -65,18 +54,3 @@ class Layer(keras.layers.Layer):
 
         shape = map(shape_dim, range(tensor.shape.ndims))
         return list(shape)
-
-    @classmethod
-    def from_params(cls, params_dict, **kwargs):
-        """
-        Creates an instance from the specified parameters (by overriding params_dict with kwargs).
-        """
-        layer_instance = cls(
-            **cls.Params(
-                cls.Params.from_dict(params_dict,                   # read relevant params from params_dict
-                                     return_unused=False,
-                                     return_instance=False),
-                **kwargs                                            # override with kwargs
-            )
-        )
-        return layer_instance

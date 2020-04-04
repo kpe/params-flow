@@ -12,8 +12,8 @@ import tempfile
 import params_flow as pf
 
 
-FETCH_URL = "https://files.pythonhosted.org/packages/d3/89/ee123cc61809e7400b52554b8620e1f4a69dde83aede8349fff5c5ae1539/bert-for-tf2-0.4.2.tar.gz"
-FETCH_ZIP_URL = "https://github.com/kpe/bert-for-tf2/archive/v0.4.2.zip"
+FETCH_URL = "https://files.pythonhosted.org/packages/4c/2a/79f44178ac6f5b6995bc7804898fce2654da70e0c5c7f76332748420d6fd/bert-for-tf2-0.13.5.tar.gz"
+FETCH_ZIP_URL = "https://github.com/kpe/bert-for-tf2/archive/v0.13.5.zip"
 
 
 class UtilsTest(unittest.TestCase):

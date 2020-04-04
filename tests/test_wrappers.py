@@ -42,6 +42,7 @@ class TestWrapper(unittest.TestCase):
             model = keras.models.load_model(temp_file, custom_objects={
                 "Concat": pf.Concat
             })
+            model.build(input_shape=(None, 4, 2))
             model.summary()
 
         res = model.predict(x)

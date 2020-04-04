@@ -9,11 +9,11 @@ import unittest
 import tempfile
 
 import os
-import params
+import params as pp
+
+import tensorflow as tf
 import params_flow as pf
 from params_flow import Layer, Model
-
-from tensorflow import keras
 
 
 class SomeLayer(Layer):
@@ -66,7 +66,7 @@ class ParamsFlowTest(unittest.TestCase):
         self.assertEqual(dict(slayer.params), dict(nlayer.params))
 
     def test_shape_list(self):
-        sh = SomeLayer.get_shape_list(keras.Input(shape=(2, 3)))
+        sh = SomeLayer.get_shape_list(tf.keras.Input(shape=(2, 3)))
         self.assertEqual(2, sh[1])
         self.assertEqual(3, sh[2])
 
