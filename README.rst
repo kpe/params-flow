@@ -60,6 +60,23 @@ NEWS
 ----
  - **04.Apr.2020** - refactored to use ``WithParams`` mixin from `kpe/py-params`_. Make
    sure to use ``_construct()`` instead of ``__init__()`` in your ``Layer`` and ``Model`` subclasses.
+   **Breaking Change** - ``_construct()`` signature has changed, please update
+   your ``Layer`` and ``Model`` subclasses from:
+
+   .. code:: python
+
+       def _construct(self, params: Params):
+           ...
+
+   to:
+
+   .. code:: python
+
+       def _construct(self, **kwargs):
+           super()._construct(**kwargs)
+           params = self.params
+           ...
+
  - **11.Sep.2019** - `LookAhead`_ optimizer wrapper implementation for efficient non eager graph mode execution (TPU) added.
  - **05.Sep.2019** - `LookAhead`_ optimizer implementation as Keras callback added.
  - **04.Sep.2019** - `RAdam`_ optimizer implementation added.

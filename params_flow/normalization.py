@@ -13,6 +13,9 @@ class Normalization(pf.Layer):
     class Params(pf.Layer.Params):
         name = "LayerNorm"
 
+    def _construct(self, **kwargs):
+        super()._construct(name=self.params.name, **kwargs)
+
     def compute_output_shape(self, input_shape):
         return input_shape
 
