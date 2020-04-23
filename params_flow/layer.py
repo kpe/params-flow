@@ -54,3 +54,13 @@ class Layer(pp.WithParams, tf.keras.layers.Layer):
 
         shape = map(shape_dim, range(tensor.shape.ndims))
         return list(shape)
+
+    def as_model(self, input_shape, **kwargs):
+        self.build(input_shape)
+        name = self.__class__.__name__
+        if "name" in kwargs:
+            name = kwargs["name"]
+        inputs = tf.keras.layers.Input(input_shape[1:], name="i_{}".format(name))
+        outputs = self.call(inputs)
+        return tf.keras.Model(inputs=inputs, outputs=outputs, **kwargs)
+
