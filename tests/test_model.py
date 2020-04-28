@@ -82,3 +82,7 @@ class ModelTest(unittest.TestCase):
                           total_epoch_count=10)
                   ])
         model.summary()
+
+    def test_layer_as_model(self):
+        model = CustomLayer(num_units=17).as_model(input_shape=(16, 3, 4))
+        model.summary()

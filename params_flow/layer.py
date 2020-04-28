@@ -63,4 +63,3 @@ class Layer(pp.WithParams, tf.keras.layers.Layer):
         inputs = tf.keras.layers.Input(input_shape[1:], name="i_{}".format(name))
         outputs = self.call(inputs)
         return tf.keras.Model(inputs=inputs, outputs=outputs, **kwargs)
-
