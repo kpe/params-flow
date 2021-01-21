@@ -154,8 +154,8 @@ Resources
 
 
 
-.. |Build Status| image:: https://travis-ci.org/kpe/params-flow.svg?branch=master
-   :target: https://travis-ci.org/kpe/params-flow
+.. |Build Status| image:: https://travis-ci.com/kpe/params-flow.svg?branch=master
+   :target: https://travis-ci.com/kpe/params-flow
 .. |Coverage Status| image:: https://coveralls.io/repos/kpe/params-flow/badge.svg?branch=master
    :target: https://coveralls.io/r/kpe/params-flow
 .. |Version Status| image:: https://badge.fury.io/py/params-flow.svg
